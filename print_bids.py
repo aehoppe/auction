@@ -19,11 +19,11 @@ import csv
 from helpers import *
 
 ALUMNI_FILTER = False
-YEAR = 2017
-HEADER = ['name', 'email', 'affiliation', 'title', 'description', 'category', 'starting_bid', 'interest_for', 'num_winners']
+YEAR = 'SENIOR_2018'
+HEADER = ['name', 'title', 'description', 'category', 'starting_bid']
 NUM_LINES = 26
 
-with open('{}/silent.csv'.format(YEAR), 'r') as sample:
+with open('{}/senior_auction.csv'.format(YEAR), 'r') as sample:
 	readSample = csv.reader(sample, delimiter=',', quotechar='"')
 
 	f = open('{}/servsheets.tex'.format(YEAR),'w')
@@ -36,15 +36,15 @@ with open('{}/silent.csv'.format(YEAR), 'r') as sample:
 			\\begin{{document}}
 		\n'''.format())
 
-	categories = [[],[],[],[],[],[]]
-	categoryNames = ["Services", "Food", "Events", "Lessons", "Arts and Crafts", "Miscellaneous"]
+	categories = [[],[],[],[],[],[],[]]
+	categoryNames = ["Events", "Arts & Crafts", "Lessons & Instruction", "Services", "Food & Drink", "Objects ", "Miscellaneous"]
 
 	header = True # I can't for the life of me figure out a better way to skip the header
 	for item in readSample:
 		if header:
 			header = False
 			continue
-		idx = categoryNames.index(item[5])
+		idx = categoryNames.index(item[3]) # ** FOR FUTURE DEVELOPERS: Change this index to reflect which column "categories" are in
 		categories[idx].append(item)
 
 	for i, category in enumerate(categories):
@@ -53,25 +53,24 @@ with open('{}/silent.csv'.format(YEAR), 'r') as sample:
 		for j, row in enumerate(category):
 			item = {key:handleLatexChars(val.strip()) for key,val in zip(HEADER,row)} # unpack the row
 
-			if not item['email']:
-				item['email'] = parse_email(item['name'], item['affiliation']) # make sure all the email addresses are present
-			item['starting_bid'] = addDollarSign(item['starting_bid'])
-			if item['num_winners'] in ['', '1']: # specify what the number of winners means
-				item['winners'] = "Top bidder"
-			else:
-				item['winners'] = "Top {num_winners} bids".format(**item)
+			# if not item['email']:
+			# 	item['email'] = parse_email(item['name'], item['affiliation']) # make sure all the email addresses are present
+			# item['starting_bid'] = addDollarSign(item['starting_bid'])
+			# if item['num_winners'] in ['', '1']: # specify what the number of winners means
+			# 	item['winners'] = "Top bidder"
+			# else:
+			# 	item['winners'] = "Top {num_winners} bids".format(**item)
 
-			# Enable Alumni only filter.
-			if ALUMNI_FILTER:
-				if 'Alumni' not in interest_for and 'anyone' not in interest_for:
-					continue
+			# # Enable Alumni only filter.
+			# if ALUMNI_FILTER:
+			# 	if 'Alumni' not in interest_for and 'anyone' not in interest_for:
+			# 		continue
 
 			# write the important information to the file
 			f.write('''\
 					\\section*{{{0}.{1} {title}}}
-					{name} ({email}) \\\\
+					{name} \\\\
 					Starting Bid: {starting_bid} \\\\
-					Winner(s): {winners} \\\\
 					{description} \\\\
 					[6ex]
 					\\begin{{tabular}}{{c c c}}
